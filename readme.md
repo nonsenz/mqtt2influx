@@ -1,0 +1,3 @@
+# mqtt2influx bridge
+
+...

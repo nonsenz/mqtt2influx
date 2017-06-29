@@ -1,0 +1,17 @@
+[mqtt]
+    host = "tcp://127.0.0.1:1883"
+    user = "YO"
+    password = "PO"
+    topic = "#"
+[influx]
+    host = "http://localhost:8086"
+    user = "muh"
+    password = "fnord"
+    database = "mydb"
+    interval = 5    # in seconds
+[[sync]]
+    pattern = "espresto\\/parking\\/(?P<SENSOR_ID>\\w+)\\/\\w+"
+    measurement = "parking"
+[[sync]]
+    pattern = "espresto\\/parking\\/(?P<SENSOR_ID>\\w+)\\/conf\\/\\w+"
+    measurement = "parking"
