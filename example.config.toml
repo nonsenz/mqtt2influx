@@ -10,8 +10,8 @@
     database = "mydb"
     interval = 5    # in seconds
 [[sync]]
-    pattern = "espresto\\/parking\\/(?P<SENSOR_ID>\\w+)\\/\\w+"
-    measurement = "parking"
+    pattern = "foo\\/bar\\/(?P<SENSOR_ID>\\w+)\\/\\w+"
+    measurement = "yolo"
 [[sync]]
-    pattern = "espresto\\/parking\\/(?P<SENSOR_ID>\\w+)\\/conf\\/\\w+"
-    measurement = "parking"
+    pattern = "muh\\/baz\\/(?P<SENSOR_ID>\\w+)\\/loom\\/\\w+"
+    measurement = "yolo"
