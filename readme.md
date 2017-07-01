@@ -4,6 +4,8 @@
 
 ## build
 
+you can build this using a docker container so you do not need to have go installed:
+
     make build
 
 crosscompiling (see https://golang.org/doc/install/source#environment):
@@ -32,7 +34,7 @@ atm you have to use a config file.
         pattern = "muh\\/baz\\/(?P<SENSOR_ID>\\w+)\\/loom\\/\\w+"
         measurement = "yolo"
         
-you have to provide a regex as pattern where you sadly have to extra (in addition to the regex escaing) escape the \ char.
+you have to provide a regex as pattern where you sadly have to extra (in addition to the regex escaping) escape the \ char.
 
 ## run
 
@@ -75,3 +77,8 @@ results in influx measurement `yolo` like that:
     1498763970000000000 sales      1.345
     
 in this case DEPARTMENT will be a tag and baz will be a field.
+
+# todo
+
+- error handling
+- tests

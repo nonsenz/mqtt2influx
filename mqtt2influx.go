@@ -111,6 +111,7 @@ func writePoints(pointCollection []*client.Point, influxClient client.Client) []
 	if err != nil {
 		log.Print(err)
 	}
+	bp.AddPoints(pointCollection)
 	if err := influxClient.Write(bp); err != nil {
 		log.Print(err)
 	} else {
