@@ -14,7 +14,7 @@ crosscompiling (see https://golang.org/doc/install/source#environment):
     
 ## configure
 
-atm you have to use a config file.
+atm you have to use a config.toml file.
 
     [mqtt]
         host = "tcp://127.0.0.1:1883"
@@ -77,6 +77,22 @@ results in influx measurement `yolo` like that:
     1498763970000000000 sales      1.345
     
 in this case DEPARTMENT will be a tag and baz will be a field.
+
+### 3. non numeric and non boolean payloads
+
+if a non numeric or non boolean payload is present we map the payload to a tag and set the "occurred" field to "true"
+ 
+    mqtt message: `foo/bar muh`
+    pattern: `foo\\/\\w+`
+    measurement: `yolo`
+    results in influx measurement `yolo` like that:
+    
+    > select * from yolo
+    name: yolo
+    time                bar occurred
+    ----                --- ---
+    1498763970000000000 muh true
+     
 
 # todo
 

@@ -12,6 +12,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/influxdata/influxdb/client/v2"
 	"github.com/jinzhu/configor"
+	"strconv"
 )
 
 var Config = struct {
@@ -37,6 +38,10 @@ var Config = struct {
 }{}
 
 var pointCollection []*client.Point
+
+const (
+	nonNumericFieldName = "occurred"
+)
 
 func main() {
 
@@ -121,52 +126,74 @@ func writePoints(pointCollection []*client.Point, influxClient client.Client) []
 }
 
 func syncCallback(mqttClient mqtt.Client, message mqtt.Message) {
-		fmt.Printf("message: %s, %s\n", message.Topic(), message.Payload())
+	fmt.Printf("message: %s, %s\n", message.Topic(), message.Payload())
 
-		for _, sync := range Config.SYNC {
-			var myExp = regexp.MustCompile(sync.Pattern)
-			match := myExp.FindStringSubmatch(message.Topic())
+	payloadIsNumericOrBoolean := isNumeric(string(message.Payload())) || isBoolean(string(message.Payload()))
 
-			// skip this pattern if no matches found
-			if len(match) == 0 {
-				continue
-			}
+	for _, sync := range Config.SYNC {
+		var myExp = regexp.MustCompile(sync.Pattern)
+		match := myExp.FindStringSubmatch(message.Topic())
 
-			tags := make(map[string]string)
-			fieldName := ""
+		// skip this pattern if no matches found
+		if len(match) == 0 {
+			continue
+		}
 
-			// collect tags and field
-			for i, name := range myExp.SubexpNames() {
-				if i != 0 {
-					if name == "" {
-						if fieldName != "" {
-							fieldName += "."
-						}
-						fieldName += match[i]
-					} else {
-						tags[name] = match[i]
+		tags := make(map[string]string)
+		fieldName := ""
+
+		// collect tags and field
+		for i, name := range myExp.SubexpNames() {
+			if i != 0 {
+				if name == "" {
+					if fieldName != "" {
+						fieldName += "."
 					}
+					fieldName += match[i]
+				} else {
+					tags[name] = match[i]
 				}
 			}
-
-			if fieldName == "" {
-				// no unnamed group exists => use last subtopic
-				topics := strings.Split(message.Topic(), "/")
-				fieldName = topics[len(topics)-1]
-			}
-
-			fields := make(map[string]interface{})
-			fields[fieldName] = message.Payload()
-
-			point, err := client.NewPoint(sync.Measurement, tags, fields, time.Now())
-			if err != nil {
-				log.Print(err)
-			}
-
-			// "store" new point until next batch interval kicks in
-			pointCollection = append(pointCollection, point)
-
-			// only process first pattern match
-			break
 		}
+
+		if fieldName == "" {
+			// no unnamed group exists => use last subtopic
+			topics := strings.Split(message.Topic(), "/")
+			fieldName = topics[len(topics)-1]
+		}
+
+		fields := make(map[string]interface{})
+
+		if (payloadIsNumericOrBoolean) {
+			fields[fieldName] = message.Payload()
+		} else {
+			// if payload is neither numeric nor boolean we want to record the payload as tag
+			// with a "occurred" field of "true" e.g.:
+			// /foo/event STATUS_CHANGE	 => event=POWERUP occurred=true
+			tags[fieldName] = string(message.Payload())
+			fields[nonNumericFieldName] = true
+		}
+
+
+		point, err := client.NewPoint(sync.Measurement, tags, fields, time.Now())
+		if err != nil {
+			log.Print(err)
+		}
+
+		// "store" new point until next batch interval kicks in
+		pointCollection = append(pointCollection, point)
+
+		// only process first pattern match
+		break
 	}
+}
+
+func isNumeric(s string) bool {
+    _, err := strconv.ParseFloat(s, 64)
+    return err == nil
+}
+
+func isBoolean(s string) bool {
+    _, err := strconv.ParseBool(s)
+    return err == nil
+}
