@@ -50,7 +50,7 @@ atm some things can be set via flags (check `mqtt2influx -h`), but not all. i'll
 
 ## examples
 
-you can find several input/output examples inside `mqtt2influx_test.go`.
+you can find several input/output examples inside [mqtt2influx_internal_test.go](https://github.com/nonsenz/mqtt2influx/blob/master/mqtt2influx_internal_test.go).
 
 ### 1.
     mqtt message: `foo/bar/34/distance 1.345`
