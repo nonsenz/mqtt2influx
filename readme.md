@@ -10,7 +10,7 @@ you can build this using a docker container so you do not need to have go instal
 
 crosscompiling (see https://golang.org/doc/install/source#environment):
     
-    make build GOOS=darwin
+    make build GOOS=linux GOARCH=arm
     
 ## configure
 
@@ -50,11 +50,13 @@ atm some things can be set via flags (check `mqtt2influx -h`), but not all. i'll
 
 ## examples
 
+you can find several input/output examples inside `mqtt2influx_test.go`.
+
 ### 1.
-mqtt message: `foo/bar/34/distance 1.345`
-pattern: `foo\\/bar\\/(?P<SENSOR_ID>\\w+)\\/\\w+`
-measurement: `yolo`
-results in influx measurement `yolo` like that:
+    mqtt message: `foo/bar/34/distance 1.345`
+    pattern: `foo\\/bar\\/(?P<SENSOR_ID>\\w+)\\/\\w+`
+    measurement: `yolo`
+    results in influx measurement `yolo` like that:
     
     > select * from yolo
     name: yolo
@@ -65,10 +67,10 @@ results in influx measurement `yolo` like that:
 in this case SENSOR_ID will be a tag and distance will be a field.
 
 ### 2.
-mqtt message: `foo/bar/sales/baz/distance 1.345`
-pattern: `foo\\/bar\\/(?P<DEPARTMENT>\\w+)\\/\(\w+\)\/\\w+`
-measurement: `yolo`
-results in influx measurement `yolo` like that:
+    mqtt message: `foo/bar/sales/baz/distance 1.345`
+    pattern: `foo\\/bar\\/(?P<DEPARTMENT>\\w+)\\/\(\w+\)\/\\w+`
+    measurement: `yolo`
+    results in influx measurement `yolo` like that:
     
     > select * from yolo
     name: yolo
@@ -96,5 +98,6 @@ if a non numeric or non boolean payload is present we map the payload to a tag a
 
 # todo
 
-- error handling
-- tests
+- better error handling
+- more tests
+- TLS support
