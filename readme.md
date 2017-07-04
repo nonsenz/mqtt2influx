@@ -1,4 +1,4 @@
-# mqtt2influx bridge
+# mqtt2influx bridge [![Build Status](https://travis-ci.org/nonsenz/mqtt2influx.svg?branch=master)](https://travis-ci.org/nonsenz/mqtt2influx)
 
 ... pushes mqtt messages to an influxdb. you can configure multiple topics, tags and the field. 
 
